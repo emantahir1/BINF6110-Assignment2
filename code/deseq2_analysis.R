@@ -1,6 +1,7 @@
 # ============================================================
-# BINF6110 Assignment 2
-# Differential Expression Analysis of Yeast Biofilm Development
+# Course: BINF6110 Assignment 2
+# Project: Differential Expression Analysis of Yeast Biofilm Development
+# Author: Eman Tahir
 # Dataset: Mardanov et al. 2020 - S. cerevisiae strain I-329
 # SRA BioProject: PRJNA592304
 # ============================================================
@@ -8,15 +9,16 @@
 # ============================================================
 # SECTION 1: LOAD LIBRARIES
 # ============================================================
-library(DESeq2)        # Differential expression analysis (Love et al. 2014)
-library(tximport)      # Import Salmon quantification output (Soneson et al. 2015)
+library(DESeq2)          # Differential expression analysis (Love et al. 2014)
+library(tximport)        # Import Salmon quantification output (Soneson et al. 2015)
 library(GenomicFeatures) # Build tx2gene mapping from GTF annotation
-library(tidyverse)     # Data manipulation and ggplot2 for visualization
-library(pheatmap)      # Heatmap visualization
-library(clusterProfiler) # GO and KEGG enrichment analysis (Wu et al. 2021)
+library(tidyverse)       # Data manipulation and ggplot2 for visualization
+library(pheatmap)        # Heatmap visualization
+library(clusterProfiler) # GO enrichment analysis (Wu et al. 2021)
 library(org.Sc.sgd.db)   # S. cerevisiae gene annotation database
-library(enrichplot)    # Enrichment result visualization
-library(AnnotationDbi) # Database interface for annotation
+library(enrichplot)      # Enrichment result visualization
+library(AnnotationDbi)   # Database interface for annotation
+library(ggrepel)         # Non-overlapping labels for ggplot2
 
 # ============================================================
 # SECTION 2: SET UP FILE PATHS AND METADATA
@@ -88,7 +90,7 @@ head(txi$counts)
 # Mapping rates were extracted from Salmon aux_info/meta_info.json files
 # All samples showed acceptable mapping rates (73.7% - 92.1%)
 # Trimming was not performed prior to quantification, consistent with
-# current best practices for RNA-seq (Williams et al. 2016)
+# current best practices for RNA-seq
 
 mapping_rates <- data.frame(
   Sample = sampleTable$sample,
@@ -104,7 +106,6 @@ mapping_rates
 # ============================================================
 # DESeq2 was chosen for its robust handling of small sample sizes (n=3)
 # and its well-validated negative binomial model for count data
-# (Love et al. 2014)
 
 # Create DESeq2 object with stage as the experimental factor
 dds <- DESeqDataSetFromTximport(txi, sampleTable, ~stage)
@@ -142,7 +143,7 @@ summary(res_thin_mature, alpha = 0.05)
 vsd <- vst(dds)
 
 # ----------------------------------------------------------
-# FIGURE 1: PCA Plot - Overall data structure
+# FIGURE 1: PCA Plot with sample labels
 # ----------------------------------------------------------
 # PCA reduces high-dimensional gene expression data to 2D
 # allowing visualization of overall sample relationships
@@ -150,8 +151,9 @@ vsd <- vst(dds)
 pca_data <- plotPCA(vsd, intgroup = "stage", returnData = TRUE)
 percentVar <- round(100 * attr(pca_data, "percentVar"))
 
-pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = stage)) +
+pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = stage, label = name)) +
   geom_point(size = 4) +
+  geom_text_repel(size = 3, show.legend = FALSE) +
   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
   ylab(paste0("PC2: ", percentVar[2], "% variance")) +
   ggtitle("PCA of Yeast Biofilm Samples") +
@@ -162,10 +164,11 @@ ggsave("~/BINF6110-Assignment2/figures/pca.png",
        pca_plot, width = 8, height = 6, dpi = 300)
 
 # ----------------------------------------------------------
-# FIGURE 2: Volcano Plot - Early vs Mature (most informative)
+# FIGURE 2: Volcano Plot with labeled top DE genes
 # ----------------------------------------------------------
 # Volcano plot shows log2 fold change vs statistical significance
 # Cutoffs: padj < 0.05 and |log2FC| > 1 (2-fold change)
+# Top 15 most significant genes labeled using ggrepel
 
 res_df <- as.data.frame(res_early_mature)
 res_df$gene <- rownames(res_df)
@@ -175,6 +178,21 @@ res_df$significant <- ifelse(
   "Not Sig")
 res_df <- na.omit(res_df)
 
+# Get top 15 most significant genes for labeling
+top_labeled <- res_df %>%
+  arrange(padj) %>%
+  head(15)
+
+gene_labels <- AnnotationDbi::select(org.Sc.sgd.db,
+                                     keys = top_labeled$gene,
+                                     columns = c("ORF", "GENENAME"),
+                                     keytype = "ORF")
+
+top_labeled <- merge(top_labeled, gene_labels, by.x = "gene", by.y = "ORF")
+top_labeled$label <- ifelse(is.na(top_labeled$GENENAME),
+                            top_labeled$gene,
+                            paste0(top_labeled$GENENAME, " (", top_labeled$gene, ")"))
+
 volcano_plot <- ggplot(res_df, aes(x = log2FoldChange,
                                    y = -log10(padj),
                                    color = significant)) +
@@ -182,15 +200,22 @@ volcano_plot <- ggplot(res_df, aes(x = log2FoldChange,
   scale_color_manual(values = c("Up in Mature" = "red",
                                 "Down in Mature" = "blue",
                                 "Not Sig" = "gray")) +
+  geom_label_repel(data = top_labeled,
+                   aes(label = label),
+                   size = 3,
+                   max.overlaps = 20,
+                   box.padding = 0.5,
+                   show.legend = FALSE) +
   labs(x = "Log2 Fold Change",
        y = "-Log10 adjusted p-value",
        title = "Volcano Plot: Early vs Mature Biofilm",
        color = "Direction") +
+  guides(color = guide_legend(override.aes = list(size = 4, alpha = 1))) +
   theme_bw()
 volcano_plot
 
 ggsave("~/BINF6110-Assignment2/figures/volcano.png",
-       volcano_plot, width = 8, height = 6, dpi = 300)
+       volcano_plot, width = 10, height = 8, dpi = 300)
 
 # ----------------------------------------------------------
 # FIGURE 3: Heatmap - Top 30 DE genes
@@ -222,6 +247,48 @@ pheatmap(mat_scaled,
          show_rownames = TRUE,
          show_colnames = FALSE,
          main = "Top 30 DE Genes: Early vs Mature Biofilm")
+dev.off()
+
+# ----------------------------------------------------------
+# FIGURE 4: Sample-to-Sample Distance Heatmap
+# ----------------------------------------------------------
+# Shows pairwise similarity between all 9 samples
+# Complements PCA by showing replicate consistency within stages
+
+sampleDists <- dist(t(assay(vsd)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(sampleTable$stage, c(1,2,3,1,2,3,1,2,3), sep="_")
+colnames(sampleDistMatrix) <- rownames(sampleDistMatrix)
+
+png("~/BINF6110-Assignment2/figures/sample_distance.png", width = 800, height = 700)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = sampleDists,
+         clustering_distance_cols = sampleDists,
+         color = colorRampPalette(c("darkblue", "white"))(100),
+         main = "Sample-to-Sample Distance Matrix")
+dev.off()
+
+# ----------------------------------------------------------
+# FIGURE 5: DESeq2 Dispersion Plot
+# ----------------------------------------------------------
+# Shows per-gene dispersion estimates and fitted trend
+# Confirms DESeq2 model fit is appropriate for this dataset
+
+png("~/BINF6110-Assignment2/figures/dispersion.png", width = 800, height = 600)
+plotDispEsts(dds, main = "DESeq2 Dispersion Estimates")
+dev.off()
+
+# ----------------------------------------------------------
+# FIGURE 6: MA Plot - Early vs Mature
+# ----------------------------------------------------------
+# MA plot shows log2 fold change vs mean expression
+# Complements volcano plot by showing relationship with expression level
+
+png("~/BINF6110-Assignment2/figures/ma_plot.png", width = 800, height = 600)
+plotMA(res_early_mature,
+       main = "MA Plot: Early vs Mature Biofilm",
+       ylim = c(-10, 10),
+       alpha = 0.05)
 dev.off()
 
 # ============================================================
@@ -269,7 +336,7 @@ ego_down <- enrichGO(gene = downregulated,
                      readable = FALSE)
 
 # ----------------------------------------------------------
-# FIGURE 4: GO Dotplot - Upregulated in Mature
+# FIGURE 7: GO Dotplot - Upregulated in Mature
 # ----------------------------------------------------------
 png("~/BINF6110-Assignment2/figures/go_upregulated.png",
     width = 800, height = 600)
@@ -278,7 +345,7 @@ dotplot(ego_up, showCategory = 15,
 dev.off()
 
 # ----------------------------------------------------------
-# FIGURE 5: GO Dotplot - Downregulated in Mature (Up in Early)
+# FIGURE 8: GO Dotplot - Downregulated in Mature (Up in Early)
 # ----------------------------------------------------------
 png("~/BINF6110-Assignment2/figures/go_downregulated.png",
     width = 800, height = 600)
@@ -287,7 +354,31 @@ dotplot(ego_down, showCategory = 15,
 dev.off()
 
 # ============================================================
-# SECTION 9: TOP DE GENES TABLE
+# SECTION 9: FLO11 EXPRESSION PLOT
+# ============================================================
+# FLO11 is the key biofilm adhesion gene - plotting its expression
+# across all three stages directly illustrates the central finding
+
+flo11_counts <- plotCounts(dds, gene = "YIR019C",
+                           intgroup = "stage",
+                           returnData = TRUE)
+
+flo11_plot <- ggplot(flo11_counts, aes(x = stage, y = count, fill = stage)) +
+  geom_boxplot(alpha = 0.7) +
+  geom_point(size = 3) +
+  scale_y_log10() +
+  labs(title = "FLO11 (YIR019C) Expression Across Biofilm Stages",
+       x = "Biofilm Stage",
+       y = "Normalized Count (log10)") +
+  theme_bw() +
+  theme(legend.position = "none")
+flo11_plot
+
+ggsave("~/BINF6110-Assignment2/figures/flo11_expression.png",
+       flo11_plot, width = 6, height = 5, dpi = 300)
+
+# ============================================================
+# SECTION 10: TOP DE GENES TABLE
 # ============================================================
 # Table of top 20 most significant DE genes from Early vs Mature
 # sorted by adjusted p-value
