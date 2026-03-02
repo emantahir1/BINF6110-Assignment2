@@ -191,9 +191,45 @@ GO BP ORA of genes upregulated in Mature biofilm revealed a different metabolic 
 
 
 ---
-
 ## Discussion
 
+Around half of all active genes changed significantly between the Early and Mature stages of the velum biofilm. This is a large proportion, and the pattern is coherent, it tells a consistent biological story. Early biofilm cells are breaking down sugar and growing actively, while Mature biofilm cells have run low on glucose, stopped fermenting, switched their energy source, and begun building the physical structure of the biofilm. The sections below walk through the main findings and what they mean.
+
+### Fermentation shuts down as glucose runs out
+
+The genes that dropped most sharply in the Mature biofilm are ones involved in breaking down sugar and producing alcohol, exactly what you would expect as glucose becomes scarce.
+
+The single most significantly changed gene in the entire dataset was *TDH1* (32-fold down, padj = 7.62×10⁻¹⁶²). *TDH1* encodes an enzyme called GAPDH, which carries out an essential step in glycolysis, the process yeast use to extract energy from glucose. Interestingly, *TDH1* is the minor, resting-state version of this enzyme that is mainly active when cells are not growing fast, so its downregulation suggests the cells are leaving the active fermentation phase behind entirely.
+
+*PDC6* (32-fold down, padj = 3.47×10⁻¹³⁰) encodes a pyruvate decarboxylase. Unlike the two main isoforms PDC1 and PDC5, PDC6 is not expressed during active glucose fermentation, it appears to function primarily when yeast are growing on non-fermentable carbon sources like ethanol (Hohmann, 1993). Its downregulation in Mature biofilm is therefore not simple to interpret: rather than reflecting a shutdown of fermentation, it may reflect something specific about the nutrient environment of the mature velum that remains to be investigated.
+
+*HXT1* (31-fold down, padj = 2.21×10⁻¹²⁶) encodes a glucose transporter, a protein that sits in the cell membrane and physically imports glucose into the cell (Roy et al., 2015). Crucially, *HXT1* is only switched on when glucose levels are high (Ozcan & Johnston, 1995). The fact that it is almost completely silenced in Mature biofilm is essentially a molecular signal that glucose has been depleted: when there is no glucose to sense, the cell stops producing the machinery to import it.
+
+*OLE1* (25-fold down, padj = 1.7×10⁻¹⁴²) encodes the enzyme responsible for making unsaturated fats, which are needed to keep cell membranes flexible (McDonough et al., 1992). Its downregulation is consistent with cells slowing down their growth and therefore needing less new membrane material.
+
+*DAL5* (10-fold down, padj = 9.73×10⁻¹⁰²) encodes a transporter for nitrogen-containing compounds. Its expression is normally switched off when the cell has plenty of nitrogen available, so its downregulation in Mature biofilm likely reflects a shift in how the cells are managing nitrogen as the environment changes, though exactly what is driving this change would need further investigation (Hellborg et al., 2008).
+
+Taken together, these results are also reflected in the gene ontology analysis: the largest category of genes that were high in Early biofilm and low in Mature biofilm was "transmembrane transport," with over 120 genes involved. This confirms that the cells are shutting down nutrient import across the board as the environment becomes nutrient-poor.
+
+### The biofilm physically consolidates: FLO11 and cell wall changes
+
+The most interesting upregulated gene is *FLO11* (45-fold up, padj = 3.47×10⁻¹³⁰). *FLO11* encodes a large sticky protein anchored to the outside of the yeast cell wall, and it is essential for forming a biofilm, growing filaments, and sticking to surfaces (Bayly et al., 2005). Its strong upregulation in Mature biofilm makes sense as the velum at this stage needs to be a physically stable film floating on the wine surface.
+
+What is particularly interesting is how the cell knows to switch on *FLO11*. It is controlled by two signalling pathways that both respond to nutrient shortage (Halme et al., 2004). So the cell is using the very same glucose depletion signal that shuts down fermentation to simultaneously trigger biofilm consolidation, a single environmental cue drives both the metabolic switch and the structural maturation of the velum (Halme et al., 2004).
+
+Several other genes involved in building and remodelling the cell wall were also strongly upregulated. *PIR1* (15-fold up) encodes a structural cell wall protein (Alvarado et al., 2025). *HXT17* (45-fold up) is a poorly understood member of the glucose transporter family whose role in mature biofilm is unclear; it may be helping the cells scavenge trace amounts of glucose in a near-depleted environment (Raj & Saini, 2024).
+
+### Stress response: coping with ethanol toxicity
+
+*SSE1* (10-fold up) helps other proteins fold correctly and prevents them from clumping together under stressful conditions (Shaner et al., 2008). Its upregulation in Mature biofilm is consistent with the cells experiencing increased stress, most likely from ethanol, which accumulates as fermentation continues and is toxic to cellular proteins even in the yeast that produce it (Shaner et al., 2008). The GO enrichment of protein folding terms in Mature biofilm genes supports the idea that the chaperone system is under increasing pressure as the biofilm ages.
+
+### What this analysis adds beyond Mardanov et al. (2020)
+
+Mardanov et al. (2020) used microarrays to study velum gene expression and identified broad categories of metabolic change. This analysis extends their work in three main ways. First, Salmon quantification with a decoy-aware index is more accurate than traditional microarray hybridisation or read alignment, reducing the risk of counting reads from the wrong gene. Second, DESeq2 with shrinkage estimation provides more reliable statistical calls, especially important when working with only three replicates per group. Third, separating up- and downregulated genes for GO enrichment gives a clearer picture of what the cells are actually switching on versus off. The identification of specific genes and the mitochondrial protein synthesis machinery, provides gene-level detail that complements the broader patterns described in the original study.
+
+### Limitations
+
+This analysis has several limitations worth noting. With only three biological replicates per stage, statistical power is limited. All conclusions are based on mRNA levels; whether these changes are actually reflected in protein levels and enzyme activity would need to be confirmed by follow-up experiments such as qPCR or proteomics. The analysis focused on the Early vs. Mature comparison; examining the Early vs. Thin and Thin vs. Mature transitions separately would give a more complete picture of how the velum develops over time. Finally, the two Thin biofilm samples with lower mapping rates (73.7% and 76.5%) may have less reliable expression estimates, which could contribute to the greater spread of Thin samples seen in the PCA.
 
 ---
 
