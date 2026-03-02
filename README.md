@@ -80,8 +80,114 @@ Functional annotation was performed using Gene Ontology over-representation anal
 The Biological Process (BP) ontology was used rather than Molecular Function or Cellular Component because BP terms describe the biological roles and pathways genes participate in, which is the most relevant level of annotation for interpreting transcriptional changes accompanying a major developmental transition. Genes from the Early vs. Mature comparison were split into upregulated and downregulated sets and analyzed separately to preserve directionality and distinguish processes that are activated from those that are repressed during biofilm maturation. A background of all expressed genes was used rather than all annotated genes in the genome, as genes not detected in this experiment cannot be considered part of the testable universe. Multiple testing correction was applied using the Benjamini-Hochberg method with padj < 0.05. A secondary qvalueCutoff of 0.2 was applied as an additional filter, which controls the proportion of false positives among significant results using the q-value framework independently of the adjusted p-value, providing greater confidence in reported terms (Wu et al., 2021). Full R code is provided in `code/deseq2_analysis.R`.
 
 ---
-
 ## Results
+
+### Quality Control
+
+FastQC analysis of all nine raw read files confirmed acceptable sequencing quality across all samples. Per-base sequence quality scores and per-sequence quality scores passed for all nine samples, indicating high base-call accuracy throughout the reads. Sequence length distribution and adapter content also passed for all samples, confirming that reads were of consistent length and free of adapter contamination. Two modules failed across all samples, per-base sequence content and sequence duplication levels, however both of these are expected and well-documented artefacts of RNA-seq data rather than indicators of poor quality (Hansen et al., 2010). Per-base sequence content failure at the 5' end of reads is a known consequence of random hexamer priming during library preparation, which introduces a non-uniform nucleotide composition at the beginning of reads (Hansen et al., 2010). Sequence duplication level failure is expected in RNA-seq because highly expressed genes naturally produce many identical reads, unlike in genomic DNA sequencing for which this metric was designed. Per-sequence GC content showed warnings in six of nine samples, but no extreme deviation from the expected GC distribution was observed that would indicate contamination or systematic bias. Taken together, the FastQC results indicate that all nine samples are of sufficient quality for downstream quantification without adapter trimming.
+
+Salmon mapping rates ranged from 73.7% to 92.1% across all nine samples (Table 1). Mature and Early biofilm samples showed consistently high mapping rates between 81.9% and 92.1%. Two Thin biofilm samples showed lower mapping rates of 73.7% (SRR10551660) and 76.5% (SRR10551661), which may reflect greater transcriptional complexity or a higher proportion of novel or unannotated transcripts at this transitional developmental stage. All mapping rates are within acceptable thresholds for RNA-seq analysis with a well-annotated reference genome.
+
+**Table 1: Salmon Mapping Rates by Sample**
+
+| Sample | Stage | Mapping Rate (%) |
+|---|---|---|
+| SRR10551663 | Early | 85.45 |
+| SRR10551664 | Early | 84.57 |
+| SRR10551665 | Early | 85.52 |
+| SRR10551660 | Thin | 73.75 |
+| SRR10551661 | Thin | 76.49 |
+| SRR10551662 | Thin | 92.06 |
+| SRR10551657 | Mature | 82.95 |
+| SRR10551658 | Mature | 81.87 |
+| SRR10551659 | Mature | 83.26 |
+
+### Overall Sample Structure
+
+PCA of variance-stabilized gene expression data across all nine samples revealed clear and consistent separation of the three biofilm developmental stages (Figure 1). PC1 accounted for 68% of total variance and separated samples along the developmental axis, Early biofilm samples clustered at positive PC1 values, Mature biofilm samples at negative PC1 values, and Thin biofilm samples were positioned intermediate between the two. PC2 accounted for an additional 25% of variance and further distinguished the Thin biofilm samples, which showed greater spread along this axis than either Early or Mature samples. This greater spread likely reflects the more variable or transitional transcriptional state of the Thin biofilm stage. Within each stage, biological replicates clustered tightly, confirming high reproducibility across samples. Together, PC1 and PC2 capture 93% of total variance, indicating that biofilm developmental stage is the dominant source of transcriptional variation in this dataset.
+
+![PCA](figures/pca.png)
+
+**Figure 1:** Principal component analysis of variance-stabilized gene expression data from nine *S. cerevisiae* samples across three biofilm developmental stages (Early, Thin, Mature; n=3 per stage). PC1 (68% variance) separates samples along the developmental trajectory. PC2 (25% variance) further distinguishes the thin biofilm stage. Individual sample IDs are labelled.
+
+The sample-to-sample distance heatmap confirmed these relationships quantitatively (Figure 2). Early and Mature biofilm samples showed the largest pairwise distances from each other, consistent with their opposing positions on PC1. Thin biofilm samples showed intermediate distances to both groups. Within each stage, pairwise distances between replicates were small, confirming the tight replicate clustering observed in the PCA.
+
+![Sample Distance](figures/sample_distance.png)
+
+**Figure 2:** Sample-to-sample distance matrix computed from Euclidean distances of variance-stabilized expression data. Darker blue indicates greater similarity between samples.
+
+The DESeq2 dispersion plot confirmed that the model fit was appropriate for this dataset (Figure 3). Gene-wise dispersion estimates followed the expected trend, with higher dispersion at low mean counts shrinking toward the fitted curve, and final estimates clustering tightly around the trend line with only a small number of outliers flagged. This indicates that DESeq2's shrinkage procedure performed as expected and that the negative binomial model is well-suited to this data.
+
+![Dispersion](figures/dispersion.png)
+
+**Figure 3:** DESeq2 dispersion estimates. Black points = gene-wise estimates; red line = fitted trend; blue points = final shrunken estimates. Circled points = genes flagged as dispersion outliers.
+
+### Differential Expression Analysis
+
+DESeq2 pairwise comparisons identified widespread transcriptional changes at all three stage transitions (Table 2). The largest number of differentially expressed genes was observed between the Early and Mature stages, with 1,541 genes upregulated and 1,427 genes downregulated in Mature relative to Early (padj < 0.05, |log2FC| > 1), representing approximately 50% of all 5,958 expressed genes. This scale of differential expression indicates a genome-wide transcriptional shift accompanying biofilm maturation rather than a targeted response involving a small number of genes.
+
+**Table 2: Summary of Differential Expression Results**
+
+| Comparison | Upregulated | Downregulated | Total DE Genes |
+|---|---|---|---|
+| Early vs. Thin | 1,110 | 1,084 | 2,194 |
+| Early vs. Mature | 1,541 | 1,427 | 2,968 |
+| Thin vs. Mature | 1,225 | 1,127 | 2,352 |
+
+The volcano plot for the Early vs. Mature comparison shows the distribution of fold changes and statistical significance across all expressed genes, with the top 15 most significant genes labeled (Figure 4). Several genes showed extreme fold changes exceeding |log2FC| = 5, and the most significant genes reached -log10(padj) values above 100, reflecting the high confidence and large magnitude of expression changes between these two developmental extremes. The most significantly downregulated gene in Mature biofilm was *TDH1* (YJL052W, log2FC = −5.35), encoding a glycolytic enzyme, while the most significantly upregulated gene was *FLO11* (YIR019C, log2FC = +5.45), encoding the key biofilm adhesion glycoprotein. The MA plot confirmed that differentially expressed genes were distributed across the full range of mean expression values, with no systematic bias toward highly or lowly expressed genes (Figure 5).
+
+![Volcano](figures/volcano.png)
+
+**Figure 4:** Volcano plot of differential gene expression between Early and Mature biofilm stages. Red = significantly upregulated in Mature (padj < 0.05, log2FC > 1); Blue = significantly downregulated in Mature; Grey = not significant. Top 15 most significant genes are labeled.
+
+![MA Plot](figures/ma_plot.png)
+
+**Figure 5:** MA plot for the Early vs. Mature comparison. Blue points = significantly differentially expressed genes (padj < 0.05). The distribution of significant genes across the full range of mean expression confirms no expression-level bias in the analysis.
+
+The heatmap of the top 30 most significant DE genes reveals two major clusters of co-regulated genes with opposing expression patterns across developmental stages (Figure 6). The upper cluster contains genes with highest expression in Early biofilm that decline progressively through Thin to Mature, including glycolytic enzymes *TDH1*, *PGK1*, *FBA1*, and *ENO2*, the high-affinity glucose transporter *HXT1*, and the pyruvate decarboxylase *PDC6*. Together, these genes describe an active fermentative metabolism in Early biofilm when glucose is still available. The lower cluster contains genes with lowest expression in Early biofilm that increase progressively with development, including the biofilm adhesion gene *FLO11*, cell wall proteins *PIR1* and *CIS3*, the gluconeogenic enzyme *PCK1*, and the stress response chaperone *SSE1*. Thin biofilm samples show intermediate expression levels between the two extremes, consistent with their transitional position in the developmental trajectory.
+
+![Heatmap](figures/heatmap.png)
+
+**Figure 6:** Heatmap of the top 30 most significant DE genes between Early and Mature biofilm stages, ranked by adjusted p-value. Expression values are row-scaled (z-score). Column annotation indicates biofilm stage. Gene labels show common name and ORF ID.
+
+The top 10 most significant DE genes from the Early vs. Mature comparison are summarized in Table 3. Full results for the top 20 genes are available in `results/top_genes.csv`.
+
+**Table 3: Top 10 Most Significant DE Genes (Early vs. Mature Biofilm)**
+
+| Gene | ORF | log2FC | padj |
+|---|---|---|---|
+| TDH1 | YJL052W | −5.350 | 7.62×10⁻¹⁶² |
+| OLE1 | YGL055W | −4.635 | 1.70×10⁻¹⁴² |
+| PDC6 | YGR087C | −4.993 | 3.47×10⁻¹³⁰ |
+| FLO11 | YIR019C | +5.446 | 3.47×10⁻¹³⁰ |
+| HXT1 | YHR094C | −4.976 | 2.21×10⁻¹²⁶ |
+| MAN2 | YNR073C | +8.179 | 4.33×10⁻¹¹⁴ |
+| DAL5 | YJR152W | −3.411 | 9.73×10⁻¹⁰² |
+| PIR1 | YKL164C | +3.983 | 2.89×10⁻⁹⁸ |
+| HXT17 | YNR072W | +5.477 | 1.70×10⁻⁹³ |
+| PGK1 | YCR012W | −4.233 | 1.78×10⁻⁹⁰ |
+
+### FLO11 Expression Across Biofilm Stages
+
+To directly verify the upregulation of the key biofilm adhesion gene across development, normalized expression counts for *FLO11* (YIR019C) were plotted across all three stages (Figure 7). *FLO11* showed a clear and progressive increase in expression from Early to Mature biofilm, with normalized counts rising approximately 45-fold from Early to Mature. Replicates within each stage were tightly grouped, particularly in the Mature stage, confirming that this upregulation is consistent and reproducible rather than driven by a single outlier replicate. This pattern directly supports the role of *FLO11* as a central driver of velum consolidation as the biofilm matures and glucose is depleted.
+
+![FLO11](figures/flo11_expression.png)
+
+**Figure 7:** Normalized expression counts for *FLO11* (YIR019C) across Early, Thin, and Mature biofilm stages (n=3 per stage). Y-axis is log10 scaled. Individual replicate values are overlaid on boxplots.
+
+### Functional Annotation
+
+GO Biological Process ORA of genes downregulated in Mature biofilm (genes most highly expressed in Early biofilm) identified significant enrichment of transmembrane transport (GeneRatio ~0.13, padj < 1×10⁻¹¹), organic acid metabolic process, oxoacid metabolic process, lipid metabolic process, and glycolytic process (Figure 8). The transmembrane transport term was the largest and most significant, with over 120 genes annotated to this term, reflecting the broad downregulation of nutrient uptake machinery as glucose becomes depleted. The enrichment of glycolytic process confirms the downregulation of core fermentation genes, including *TDH1*, *PGK1*, and *PDC6* observed in the DE analysis. Together, these terms describe an Early biofilm actively importing and fermenting glucose.
+
+![GO Downregulated](figures/go_downregulated.png)
+
+**Figure 8:** GO Biological Process over-representation analysis of genes downregulated in Mature biofilm (upregulated in Early), from the Early vs. Mature pairwise comparison. Dot size = number of DE genes annotated to each term; colour = adjusted p-value (red = more significant). Background = all expressed genes.
+
+GO BP ORA of genes upregulated in Mature biofilm revealed a different metabolic program (Figure 9). The most enriched term by GeneRatio was translation (GeneRatio ~0.12), followed by mitochondrion organization, generation of precursor metabolites and energy, mitochondrial gene expression, mitochondrial translation, energy derivation by oxidation of organic compounds, cellular respiration, aerobic respiration, and mitochondrial respiratory chain complex assembly. The dominance of mitochondrial and respiratory terms indicates that Mature biofilm cells are shifting away from fermentation and toward oxidative phosphorylation as their primary energy source — a metabolic transition consistent with the diauxic shift that occurs when glucose is depleted and ethanol becomes the primary carbon source. This shift requires the cell to upregulate the entire mitochondrial machinery, from mitochondrial gene expression and translation to respiratory chain complex assembly. The enrichment of the translation term reflects the large-scale production of new mitochondrial and respiratory proteins required to support this metabolic transition.
+
+![GO Upregulated](figures/go_upregulated.png)
+
+**Figure 9:** GO Biological Process over-representation analysis of genes upregulated in Mature biofilm, from the Early vs. Mature pairwise comparison. Dot size = number of DE genes annotated to each term; colour = adjusted p-value.
 
 
 ---
