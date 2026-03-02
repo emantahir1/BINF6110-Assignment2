@@ -232,5 +232,64 @@ Mardanov et al. (2020) used microarrays to study velum gene expression and ident
 This analysis has several limitations worth noting. With only three biological replicates per stage, statistical power is limited. All conclusions are based on mRNA levels; whether these changes are actually reflected in protein levels and enzyme activity would need to be confirmed by follow-up experiments such as qPCR or proteomics. The analysis focused on the Early vs. Mature comparison; examining the Early vs. Thin and Thin vs. Mature transitions separately would give a more complete picture of how the velum develops over time. Finally, the two Thin biofilm samples with lower mapping rates (73.7% and 76.5%) may have less reliable expression estimates, which could contribute to the greater spread of Thin samples seen in the PCA.
 
 ---
-
 ## References
+
+Alvarado, M., Moreno-Martínez, A. E., Micó, M., Gómez-Navajas, J. A., Blázquez-Abellán, A., Mixão, V., Gabaldón, T., Mateo, E., Valentín, E., & De Groot, P. W. J. (2025). Wall incorporation of the β-1,3-glucan cross-linking protein Pir1 in the human pathogen *Candida albicans* is facilitated by the presence of two or more Pir repeat units. *FEMS Yeast Research*, 25. https://doi.org/10.1093/femsyr/foaf042
+
+Andrews, S. (2010). FastQC a quality control tool for high throughput sequence data. Babraham.ac.uk. https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+
+Bayly, J., Douglas, L., Pretorius, I., Bauer, F., & Dranginis, A. (2005). Characteristics of Flo11-dependent flocculation in. *FEMS Yeast Research*, 5(12), 1151–1156. https://doi.org/10.1016/j.femsyr.2005.05.004
+
+Bou Zeidan, M., Carmona, L., Zara, S., & Marcos, J. F. (2013). FLO11 gene is involved in the interaction of flor strains of *Saccharomyces cerevisiae* with a biofilm-promoting synthetic hexapeptide. *Applied and Environmental Microbiology*, 79(19), 6023–6032. https://doi.org/10.1128/aem.01647-13
+
+David-Vaizant, V., & Alexandre, H. (2018). Flor yeast diversity and dynamics in biologically aged wines. *Frontiers in Microbiology*, 9. https://doi.org/10.3389/fmicb.2018.02235
+
+Delgado, M. L., O'Connor, J. E., Azorín, I., Renau-Piqueras, J., Gil, M. L., & Gozalbo, D. (2001). The glyceraldehyde-3-phosphate dehydrogenase polypeptides encoded by the *Saccharomyces cerevisiae* TDH1, TDH2 and TDH3 genes are also cell wall proteins. *Microbiology*, 147(2), 411–417. https://doi.org/10.1099/00221287-147-2-411
+
+Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. *GitHub*. https://github.com/MultiQC/MultiQC
+
+Galdieri, L., Mehrotra, S., Yu, S., & Vancura, A. (2010). Transcriptional regulation in yeast during diauxic shift and stationary phase. *OMICS: A Journal of Integrative Biology*, 14(6), 629–638. https://doi.org/10.1089/omi.2010.0069
+
+Halme, A., Bumgarner, S., Styles, C., & Fink, G. R. (2004). Genetic and epigenetic regulation of the FLO gene family generates cell-surface variation in yeast. *Cell*, 116(3), 405–415. https://doi.org/10.1016/s0092-8674(04)00118-7
+
+Hansen, K. D., Brenner, S. E., & Dudoit, S. (2010). Biases in Illumina transcriptome sequencing caused by random hexamer priming. *Nucleic Acids Research*, 38(12), e131–e131. https://doi.org/10.1093/nar/gkq224
+
+Hellborg, L., Woolfit, M., Arthursson-Hellborg, M., & Piškur, J. (2008). Complex evolution of the DAL5 transporter family. *BMC Genomics*, 9(1), 164. https://doi.org/10.1186/1471-2164-9-164
+
+Hohmann, S. (1991). Characterization of PDC6, a third structural gene for pyruvate decarboxylase in *Saccharomyces cerevisiae*. *Journal of Bacteriology*, 173(24), 7963–7969. https://doi.org/10.1128/jb.173.24.7963-7969.1991
+
+Irianto, V. S., Plocek, V., Bharti, R., Maršíková, J., Váchová, L., & Palková, Z. (2025). Spatial structure of yeast biofilms and the role of cell adhesion across different media. *Biofilm*, 10, 100306–100306. https://doi.org/10.1016/j.bioflm.2025.100306
+
+Lawrence, M., Huber, W., Pagès, H., Aboyoun, P., Carlson, M., Gentleman, R., Morgan, M. T., & Carey, V. J. (2013). Software for computing and annotating genomic ranges. *PLoS Computational Biology*, 9(8), e1003118. https://doi.org/10.1371/journal.pcbi.1003118
+
+Liao, Y., & Shi, W. (2020). Read trimming is not required for mapping and quantification of RNA-seq reads at the gene level. *NAR Genomics and Bioinformatics*, 2(3). https://doi.org/10.1093/nargab/lqaa068
+
+Love, M. I., Huber, W., & Anders, S. (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. *Genome Biology*, 15(12), 550. https://doi.org/10.1186/s13059-014-0550-8
+
+Mardanov, A. V., Eldarov, M. A., Beletsky, A. V., Tanashchuk, T. N., Kishkovskaya, S. A., & Ravin, N. V. (2020). Transcriptome profile of yeast strain used for biological wine aging revealed dynamic changes of gene expression in course of flor development. *Frontiers in Microbiology*, 11. https://doi.org/10.3389/fmicb.2020.00538
+
+Mbuyane, L. L., Bauer, F. F., & Divol, B. (2021). The metabolism of lipids in yeasts and applications in oenology. *Food Research International*, 141, 110142. https://doi.org/10.1016/j.foodres.2021.110142
+
+McDonough, V. M., Stukey, J. E., & Martin, C. E. (1992). Specificity of unsaturated fatty acid-regulated expression of the *Saccharomyces cerevisiae* OLE1 gene. *The Journal of Biological Chemistry*, 267(9), 5931–5936. https://pubmed.ncbi.nlm.nih.gov/1556107/
+
+Muzellec, B., Teleńczuk, M., Cabeli, V., & Andreux, M. (2023). PyDESeq2: a python package for bulk RNA-seq differential expression analysis. *Bioinformatics*, 39(9). https://doi.org/10.1093/bioinformatics/btad547
+
+Ozcan, S., & Johnston, M. (1995). Three different regulatory mechanisms enable yeast hexose transporter (HXT) genes to be induced by different levels of glucose. *Molecular and Cellular Biology*, 15(3), 1564–1572. https://doi.org/10.1128/mcb.15.3.1564
+
+Parapouli, M., Vasileiadi, A., Afendra, A.-S., & Hatziloukas, E. (2020). *Saccharomyces cerevisiae* and its industrial applications. *AIMS Microbiology*, 6(1), 1–31. https://doi.org/10.3934/microbiol.2020001
+
+Patro, R., Duggal, G., Love, M. I., Irizarry, R. A., & Kingsford, C. (2017). Salmon provides fast and bias-aware quantification of transcript expression. *Nature Methods*, 14(4), 417–419. https://doi.org/10.1038/nmeth.4197
+
+Raj, N., & Saini, S. (2024). Increased privatization of a public resource leads to spread of cooperation in a microbial population. *Microbiology Spectrum*. https://doi.org/10.1128/spectrum.02358-23
+
+Roy, A., Dement, A., Cho, K. R., & Kim, J. H. (2015). Assessing glucose uptake through the yeast hexose transporter 1 (Hxt1). *PLOS ONE*, 10(3), e0121985–e0121985. https://doi.org/10.1371/journal.pone.0121985
+
+Shaner, L., Gibney, P. A., & Morano, K. A. (2008). The Hsp110 protein chaperone Sse1 is required for yeast cell wall integrity and morphogenesis. *Current Genetics*, 54(1), 1–11. https://doi.org/10.1007/s00294-008-0193-y
+
+Soneson, C., Love, M. I., & Robinson, M. D. (2016). Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences. *F1000Research*, 4, 1521. https://doi.org/10.12688/f1000research.7563.2
+
+Speranza, B., Corbo, M. R., Campaniello, D., Altieri, C., Sinigaglia, M., & Bevilacqua, A. (2020). Biofilm formation by potentially probiotic *Saccharomyces cerevisiae* strains. *Food Microbiology*, 87, 103393. https://doi.org/10.1016/j.fm.2019.103393
+
+Srivastava, A., Malik, L., Sarkar, H., Zakeri, M., Almodaresi, F., Soneson, C., Love, M. I., Kingsford, C., & Patro, R. (2020). Alignment and mapping methodology influence transcript abundance estimation. *Genome Biology*, 21(1). https://doi.org/10.1186/s13059-020-02151-8
+
+Wu, T., Hu, E., Xu, S., Chen, M., Guo, P., Dai, Z., Feng, T., Zhou, L., Tang, W., Zhan, L., Fu, X., Liu, S., Bo, X., & Yu, G. (2021). clusterProfiler 4.0: A universal enrichment tool for interpreting omics data. *The Innovation*, 2(3), 100141.
